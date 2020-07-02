@@ -21,7 +21,7 @@ app.use(cors());
 
 app.get("/", (req, res) => {
     res.json({
-        message: "Home Page CHANGED",
+        message: "Home served from Heroku",
     });
 });
 
