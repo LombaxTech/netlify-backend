@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const app = express();
 require("dotenv").config();
 
-const path = require("path");
+const server = require("http").Server(app);
+const io = require("socket.io")(server, { wsEngine: "ws" });
 
 mongoose
     .connect(process.env.MONGODB_URI, {
@@ -27,15 +28,14 @@ app.get("/", (req, res) => {
 
 // routes
 const postRoutes = require("./routes/post");
-
 app.use("/", postRoutes);
 
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static("client/build"));
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+// socket stuff
+io.on("connection", (socket) => {
+    socket.on("message", (e) => {
+        io.emit("message", e);
     });
-}
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`started listening on port ${PORT}`));
+server.listen(PORT, () => console.log(`started listening on port ${PORT}`));
